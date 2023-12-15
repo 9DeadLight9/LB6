@@ -1,41 +1,34 @@
 ﻿using System;
+using System.Collections.Generic;
 
-public class Calculator<T>
+
+public delegate bool Criteria<T>(T item);
+
+
+public class Repository<T>
 {
-   
-    public delegate T AddDelegate(T num1, T num2);
-
-  
-    public delegate T SubtractDelegate(T num1, T num2);
-
- 
-    public delegate T MultiplyDelegate(T num1, T num2);
-
-  
-    public delegate T DivideDelegate(T num1, T num2);
+    private List<T> items = new List<T>();
 
 
-    public AddDelegate Add;
-    public SubtractDelegate Subtract;
-    public MultiplyDelegate Multiply;
-    public DivideDelegate Divide;
-
-
-    public Calculator()
+    public void Add(T item)
     {
-        Add = (a, b) => (dynamic)a + b;
-        Subtract = (a, b) => (dynamic)a - b;
-        Multiply = (a, b) => (dynamic)a * b;
-        Divide = (a, b) => (dynamic)a / b;
+        items.Add(item);
     }
 
    
-    public void PerformOperations(T num1, T num2)
+    public List<T> Find(Criteria<T> criteria)
     {
-        Console.WriteLine($"Додавання: {Add(num1, num2)}");
-        Console.WriteLine($"Віднімання: {Subtract(num1, num2)}");
-        Console.WriteLine($"Множення: {Multiply(num1, num2)}");
-        Console.WriteLine($"Ділення: {Divide(num1, num2)}");
+        List<T> result = new List<T>();
+
+        foreach (T item in items)
+        {
+            if (criteria(item))
+            {
+                result.Add(item);
+            }
+        }
+
+        return result;
     }
 }
 
@@ -43,16 +36,21 @@ class Program
 {
     static void Main()
     {
-        // Використання калькулятора для цілих чисел
-        Calculator<int> intCalculator = new Calculator<int>();
-        intCalculator.PerformOperations(5, 3);
+      
+        Repository<int> intRepository = new Repository<int>();
+        intRepository.Add(1);
+        intRepository.Add(2);
+        intRepository.Add(3);
+        intRepository.Add(4);
 
-        // Використання калькулятора для десяткових чисел
-        Calculator<double> doubleCalculator = new Calculator<double>();
-        doubleCalculator.PerformOperations(5.5, 2.2);
+        Criteria<int> evenCriteria = x => x % 2 == 0;
 
-        // Використання калькулятора для чисел з плаваючою комою
-        Calculator<float> floatCalculator = new Calculator<float>();
-        floatCalculator.PerformOperations(4.5f, 1.5f);
+        List<int> evenNumbers = intRepository.Find(evenCriteria);
+
+        Console.WriteLine("Even numbers:");
+        foreach (int number in evenNumbers)
+        {
+            Console.WriteLine(number);
+        }
     }
 }
